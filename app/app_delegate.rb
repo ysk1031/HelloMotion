@@ -1,16 +1,35 @@
 class AppDelegate
+
+  include BW::KVO
+
+  attr_accessor :user
+
   def application(application, didFinishLaunchingWithOptions:launchOptions)
     @window = UIWindow.alloc.initWithFrame(UIScreen.mainScreen.applicationFrame)
     @window.makeKeyAndVisible
 
-    @points = [[0, 0], [50, 0], [0, 50], [50, 50]]
-    @current_index = 0
+    @name_label = UILabel.alloc.initWithFrame([[0, 0], [100, 30]])
+    @window.addSubview(@name_label)
 
-    @view = UIView.alloc.initWithFrame [@points[@current_index], [100, 100]]
-    @view.backgroundColor = UIColor.blueColor
-    @window.addSubview @view
+    @email_label = UILabel.alloc.initWithFrame(
+      [[0, @name_label.frame.size.height + 10], @name_label.frame.size]
+    )
+    @window.addSubview(@email_label)
 
-    animate_to_next_point
+    @id_label = UILabel.alloc.initWithFrame(
+      [[0, @email_label.frame.origin.y + @email_label.frame.size.height + 10],
+        @name_label.frame.size
+      ]
+    )
+    @window.addSubview(@id_label)
+
+    self.user = User.new
+
+    %w(name id email).each do |prop|
+      observe(self.user, prop) do |old_value, new_value|
+        instance_variable_get("@#{prop}_label").text = new_value
+      end
+    end
 
     true
   end
